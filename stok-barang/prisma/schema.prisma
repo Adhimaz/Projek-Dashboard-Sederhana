@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String      @id @default(cuid())
+  name       String
+  username   String      @unique
+  password   String
+  role       Role        @default(OPERATOR)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  transaksi  Transaksi[]
+}
+
+enum Role {
+  ADMIN
+  OPERATOR
+}
+
+model Barang {
+  id         String      @id @default(cuid())
+  nama       String
+  kode       String      @unique
+  stok       Int         @default(0)
+  lokasi_rak String
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  transaksi  Transaksi[]
+}
+
+model Transaksi {
+  id               String          @id @default(cuid())
+  id_barang        String
+  tanggal          DateTime        @default(now())
+  tipe_transaksi   TipeTransaksi
+  jumlah           Int
+  id_user          String
+  barang           Barang          @relation(fields: [id_barang], references: [id])
+  user             User            @relation(fields: [id_user], references: [id])
+  createdAt        DateTime        @default(now())
+}
+
+enum TipeTransaksi {
+  MASUK
+  KELUAR
+}
