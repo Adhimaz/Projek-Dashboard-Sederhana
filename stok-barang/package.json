@@ -13,6 +13,7 @@
     "@headlessui/react": "^2.2.10",
     "@heroicons/react": "^2.2.0",
     "@prisma/client": "^6.19.3",
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
     "date-fns": "^4.1.0",
     "dotenv": "^17.4.2",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.19.41",
     "@types/react": "^19",
