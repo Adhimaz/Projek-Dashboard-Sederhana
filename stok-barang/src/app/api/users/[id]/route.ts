@@ -4,7 +4,9 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  
   const session = await getServerSession(authOptions)
   if (!session || session.user.role !== 'ADMIN')
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -16,22 +18,23 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   if (password) data.password = await bcrypt.hash(password, 10)
 
   const user = await prisma.user.update({
-    where: { id: params.id },
+    where: { id },
     data,
     select: { id: true, name: true, username: true, role: true },
   })
   return NextResponse.json(user)
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  
   const session = await getServerSession(authOptions)
   if (!session || session.user.role !== 'ADMIN')
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  // Jangan hapus diri sendiri
-  if (params.id === session.user.id)
+  if (id === session.user.id)
     return NextResponse.json({ error: 'Tidak bisa hapus akun sendiri' }, { status: 400 })
 
-  await prisma.user.delete({ where: { id: params.id } })
+  await prisma.user.delete({ where: { id } })
   return NextResponse.json({ message: 'User dihapus' })
 }
