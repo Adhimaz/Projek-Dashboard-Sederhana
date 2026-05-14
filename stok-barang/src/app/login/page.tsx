@@ -1,8 +1,10 @@
 "use client"
 
-import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
+
+import toast from "react-hot-toast"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -10,53 +12,73 @@ export default function LoginPage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
 
-  async function handleLogin(e: React.FormEvent) {
+  const [loading, setLoading] = useState(false)
+
+  async function handleLogin(
+    e: React.FormEvent
+  ) {
     e.preventDefault()
 
-    const res = await signIn("credentials", {
-      username,
-      password,
-      redirect: false,
-    })
+    setLoading(true)
 
-    if (res?.ok) {
+    try {
+      const res = await signIn("credentials", {
+        username,
+        password,
+        redirect: false,
+      })
+
+      if (res?.error) {
+        toast.error("Username/password salah")
+        return
+      }
+
+      toast.success("Login berhasil")
+
       router.push("/dashboard")
-    } else {
-      alert("Login gagal")
+    } catch (error) {
+      toast.error("Terjadi kesalahan")
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <div className="flex h-screen items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <form
         onSubmit={handleLogin}
-        className="bg-white p-6 rounded-xl shadow w-80"
+        className="bg-white p-8 rounded-xl shadow-md w-[400px] space-y-4"
       >
-        <h1 className="text-2xl font-bold mb-5 text-center">
-          Login
+        <h1 className="text-2xl font-bold text-center">
+          Login Dashboard
         </h1>
 
         <input
           type="text"
           placeholder="Username"
-          className="w-full border p-2 mb-3 rounded"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) =>
+            setUsername(e.target.value)
+          }
+          className="w-full border p-3 rounded-lg"
         />
 
         <input
           type="password"
           placeholder="Password"
-          className="w-full border p-2 mb-4 rounded"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) =>
+            setPassword(e.target.value)
+          }
+          className="w-full border p-3 rounded-lg"
         />
 
         <button
           type="submit"
-          className="bg-blue-500 text-white w-full py-2 rounded"
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-3 rounded-lg"
         >
-          Login
+          {loading ? "Loading..." : "Login"}
         </button>
       </form>
     </div>
